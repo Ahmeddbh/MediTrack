@@ -1,55 +1,98 @@
-# MediTrack
-# MediTrack — Parte 1
+# MediTrack — Guía de inicio para la Parte 2
 
-Proyecto de **Bases de Datos Avanzadas (2025/2026)**  
-Sistema de gestión de ingresos hospitalarios usando **MongoDB + Python**
+Este repositorio contiene la Parte 1 del proyecto MediTrack: carga del dataset hospitalario en MongoDB y consultas estadísticas básicas.
 
----
+## 1. Clonar el repositorio
 
-## 📌 Descripción
+```bash
+git clone https://github.com/Ahmeddbh/MediTrack.git
+cd MediTrack
+2. Crear entorno virtual
+python3 -m venv venv
+source venv/bin/activate
+3. Instalar dependencias
+pip install -r requirements.txt
+4. Descargar el dataset
 
-En esta parte del proyecto se ha preparado todo el entorno necesario para trabajar con datos hospitalarios:
+Descargar desde Kaggle:
 
-- Instalación y configuración de MongoDB en local (Ubuntu)
-- Carga de un dataset clínico (~55.500 registros)
-- Transformación de datos (CSV → JSON)
-- Creación de índices para optimización
-- Implementación de consultas estadísticas con Aggregation Pipeline
+Healthcare Dataset — Prasad Patil
 
-La base queda lista para que en la Parte 2 se integre la API de openFDA y se generen informes.
+El archivo debe llamarse:
 
----
+healthcare_dataset.csv
 
-## 🗂 Estructura del proyecto
+Colocarlo en:
+
+data/healthcare_dataset.csv
+
+La estructura debe quedar así:
+
 MediTrack/
-│
-├── data/ # Dataset (NO incluido en el repo)
-├── scripts/ # Scripts Python
-│ ├── cargar_dataset.py
-│ └── consultas_estadisticas.py
-│
-├── docs/ # Documentación
-├── requirements.txt # Dependencias
+├── data/
+│   └── healthcare_dataset.csv
+├── scripts/
+│   ├── cargar_dataset.py
+│   └── consultas_estadisticas.py
+├── docs/
+├── requirements.txt
 └── README.md
+5. Comprobar que MongoDB está activo
+sudo systemctl status mongod
 
----
+Debe aparecer:
 
-## ⚙️ Requisitos
+active (running)
 
-- Ubuntu 20.04 o superior
-- Python 3.10+
-- MongoDB 7.0 (instalado en local)
+Si está parado:
 
----
+sudo systemctl start mongod
+6. Cargar el dataset en MongoDB
+python3 scripts/cargar_dataset.py
 
-## 🔗 Conexión a MongoDB
+Resultado esperado:
 
-```text
-mongodb://localhost:27017/
-Base de datos:
+Documentos insertados: 55500
 
-meditrack
+Esto crea:
 
-Colección:
+Base de datos: meditrack
+Colección: pacientes
 
-pacientes
+También añade los campos:
+
+stay_days
+fda_info
+
+El campo fda_info está preparado para que en la Parte 2 se rellene con datos de openFDA.
+
+7. Ejecutar consultas de prueba
+python3 scripts/consultas_estadisticas.py
+
+Este script comprueba que los datos están bien cargados mediante 7 consultas estadísticas.
+
+8. Conexión desde Python
+from pymongo import MongoClient
+
+client = MongoClient("mongodb://localhost:27017/")
+db = client["meditrack"]
+collection = db["pacientes"]
+9. Comprobar número de documentos
+python3 -c "from pymongo import MongoClient; c=MongoClient('mongodb://localhost:27017/'); print(c['meditrack']['pacientes'].count_documents({}))"
+
+Resultado esperado:
+
+55500
+10. Ver un documento de ejemplo
+python3 -c "from pymongo import MongoClient; import pprint; c=MongoClient('mongodb://localhost:27017/'); pprint.pp(c['meditrack']['pacientes'].find_one())"
+Estado actual
+MongoDB instalado y funcionando.
+Dataset cargado correctamente.
+Base de datos meditrack creada.
+Colección pacientes creada.
+55.500 documentos insertados.
+Índices creados sobre:
+medical_condition
+medication
+admission_type
+doctor
